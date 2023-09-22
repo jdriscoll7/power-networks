@@ -5,8 +5,8 @@ using Printf
 using Plots
 using VegaLite
 
-include("../src/NetworkFunctions.jl")
-using ..NetworkFunctions
+includet("../src/NetworkFunctions.jl")
+using .NetworkFunctions
 default(show = true)
 
 
@@ -18,6 +18,7 @@ default(show = true)
 data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case5_pjm.m")
 network_data_1 = PowerModels.parse_file(data_file)
 network_data_2 = PowerModels.parse_file(data_file)
+power_to_graph(network_data_2)
 # delete!(network_data_2["branch"], "7")
 delete!(network_data_2["branch"], "148")
 

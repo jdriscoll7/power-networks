@@ -1,8 +1,10 @@
 module NetworkFunctions
 
+
 using Graphs
 using DataStructures
 using Plots
+using ExportAll
 
 
 function distance_dict(graph, vertex::Int64)
@@ -22,6 +24,32 @@ function graph_distances(graph, vertices::Vector{Int64})
     end
     
     return distances
+end
+
+
+function overwrite_layout_positions!(network_to_overwrite, network)
+
+    for (bus_number, bus_data) in network["bus"]
+        if bus_number in keys(network_to_overwrite["bus"])
+            network_to_overwrite["bus"][bus_number]["xcoord_1"] = bus_data["xcoord_1"]
+            network_to_overwrite["bus"][bus_number]["ycoord_1"] = bus_data["ycoord_1"]
+        end
+    end
+
+    for (load_number, load_data) in network["load"]
+        if load_number in keys(network_to_overwrite["load"])
+            network_to_overwrite["load"][load_number]["xcoord_1"] = load_data["xcoord_1"]
+            network_to_overwrite["load"][load_number]["ycoord_1"] = load_data["ycoord_1"]
+        end
+    end
+
+    for (gen_number, gen_data) in network["gen"]
+        if gen_number in keys(network_to_overwrite["gen"])
+            network_to_overwrite["gen"][gen_number]["xcoord_1"] = gen_data["xcoord_1"]
+            network_to_overwrite["gen"][gen_number]["ycoord_1"] = gen_data["ycoord_1"]
+        end
+    end
+
 end
 
 
@@ -215,11 +243,11 @@ end
 
 function get_adjacent_branches(network, bus_number::Int)
 
-    output_branch_list = {}
+    output_branch_list = Dict()
 
-    for (bus_id, bus_info) in network["bus"]
-        if bus_info["f_bus"] == bus_number || bus_info["t_bus"] == bus_number
-            output_branch_list[bus_id] = copy(bus_info)
+    for (branch_id, branch_info) in network["branch"]
+        if branch_info["f_bus"] == bus_number || branch_info["t_bus"] == bus_number
+            output_branch_list[branch_id] = copy(branch_info)
         end
     end
 
@@ -237,7 +265,7 @@ end
 
 function get_adjacent_generators(network, bus_number::Int)
 
-    output_gen_list = {}
+    output_gen_list = Dict()
 
     for (gen_id, gen_info) in network["gen"]
         if gen_info["gen_bus"] == bus_number 
@@ -258,7 +286,7 @@ end
 
 function get_adjacent_loads(network, bus_number::Int)
 
-    output_load_list = {}
+    output_load_list = Dict()
 
     for (load_id, load_info) in network["load"]
         if load_info["load_bus"] == bus_number 
@@ -277,5 +305,6 @@ function get_adjacent_loads(network, bus_number::String)
 
 end
 
+@exportAll()
 
 end

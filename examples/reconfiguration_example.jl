@@ -1,6 +1,7 @@
 using PowerModels
 using PowerPlots
 using Ipopt
+using JuMP
 using Printf
 using Plots
 using VegaLite
@@ -14,13 +15,13 @@ using .Configurations
 default(show = true)
 
 # data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case5_pjm.m")
-# data_file = joinpath(@__DIR__, "..\\ieee_data\\WB5.m")
-data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case30_ieee.m")
+data_file = joinpath(@__DIR__, "..\\ieee_data\\WB5.m")
+# data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case30_ieee.m")
 network_data = PowerModels.parse_file(data_file)
 
 
 # BUS_NUMBERS = [15, 24, 9, 17]
-BUS_NUMBERS = [2, 27]
+BUS_NUMBERS = [4]
 
 config_costs = Dict()
 configs = Dict()

@@ -7,6 +7,7 @@ using Printf
 using Plots
 using VegaLite
 using ExportAll
+using JuMP
 
 
 include("NetworkFunctions.jl")
@@ -55,6 +56,9 @@ function apply_bus_configuration(network, configuration)
 
     # If buses are connected, don't change existing bus. Copy all branches to second bus - ignore line_to_bus_connections field.
     if configuration.buses_connected != 0
+
+        adjacent_branches = get_adjacent_branches(output_network, bus_number)
+        sorted_adjacent_branch_keys = sort(parse.(Int, collect(keys(adjacent_branches))))    
 
         branches_to_add = create_new_branches(adjacent_branches, bus_number, new_bus_number, n_branches)
         
@@ -125,7 +129,9 @@ end
 
 function solve_configuration(configured_network)
 
-    return solve_opf(configured_network, ACPPowerModel, Ipopt.Optimizer)
+    opt = JuMP.optimizer_with_attributes(Ipopt.Optimizer, "max_iter"=>150, "print_level"=>0)
+
+    return solve_opf(configured_network, ACPPowerModel, opt)
 
 end
 
@@ -202,6 +208,8 @@ function configuration_cost(network, configuration)
 
     if occursin("INFEASIBLE", string(reconfigured_solution["termination_status"])) || occursin("ITERATION_LIMIT", string(reconfigured_solution["termination_status"]))
         return NaN, output_configured_network
+    elseif occursin("ERROR", string(reconfigured_solution["termination_status"]))
+        return NaN, output_configured_network
     else
         return reconfigured_solution["objective"], output_configured_network
     end
@@ -264,12 +272,12 @@ function generate_all_configurations(network, bus)
     # Config to use as basis for others.
     starting_config = make_configuration_template(network, bus)
 
-    println(starting_config)
+    # println(starting_config)
 
     # Compute total number of configurations.
     n_config_bits = 1 + length(starting_config.load_connections) + length(starting_config.gen_connections) + length(starting_config.line_to_bus_connections) + length(starting_config.line_connections)
 
-    println(n_config_bits)
+    # println(n_config_bits)
 
     for i = 1:(2^n_config_bits)
         push!(output_configs, binary_to_configuration(starting_config, i))

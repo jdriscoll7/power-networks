@@ -4,18 +4,19 @@ using Ipopt
 using Printf
 using Plots
 using VegaLite
+using Revise
 
 includet("../src/NetworkFunctions.jl")
-using .NetworkFunctions
+using ..NetworkFunctions
 default(show = true)
 
 
-# data_file = joinpath(@__DIR__, "..\\ieee_data\\WB5.m")
+data_file = joinpath(@__DIR__, "..\\ieee_data\\WB5.m")
 # network_data_1 = PowerModels.parse_file(data_file)
 # network_data_2 = PowerModels.parse_file(data_file)
 # delete!(network_data_2["branch"], "6")
 
-data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case5_pjm.m")
+# data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case5_pjm.m")
 network_data_1 = PowerModels.parse_file(data_file)
 network_data_2 = PowerModels.parse_file(data_file)
 power_to_graph(network_data_2)

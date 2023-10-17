@@ -8,9 +8,9 @@ using Plots
 using VegaLite
 using ExportAll
 using JuMP
+using Revise
 
-
-include("NetworkFunctions.jl")
+include("./NetworkFunctions.jl")
 using .NetworkFunctions
 
 
@@ -72,8 +72,8 @@ function apply_bus_configuration(network, configuration)
         for config_id = 1:length(configuration.line_to_bus_connections)
             if configuration.line_to_bus_connections[config_id] != 0
                 
-                println(config_id)
-                println(configuration.line_connections)
+                # println(config_id)
+                # println(configuration.line_connections)
                 
 
                 if configuration.line_connections[config_id] == 0
@@ -81,7 +81,7 @@ function apply_bus_configuration(network, configuration)
                 end
                 
                 branch_key = string(sorted_adjacent_branch_keys[config_id])
-                println(branch_key)
+                # println(branch_key)
 
                 # For each branch, decide if t_bus or f_bus needs to be switched to new bus number.
                 if bus_number == output_network["branch"][branch_key]["t_bus"]
@@ -121,7 +121,7 @@ function apply_bus_configuration(network, configuration)
 end
 
 
-function solve_configuration(network, configuration, )
+function solve_configuration(network, configuration)
 
     return solve_configuration(apply_bus_configuration(network, configuration))
 
@@ -201,15 +201,18 @@ end
 function configuration_cost(network, configuration)
 
     output_configured_network = apply_bus_configuration(network, configuration)
+    result = solve_opf(network, ACPPowerModel, JuMP.optimizer_with_attributes(Ipopt.Optimizer, "max_iter"=>150, "print_level"=>0))
     
+
     reconfigured_solution = solve_configuration(network, configuration)
 
     update_data!(output_configured_network, reconfigured_solution["solution"])
+    update_data!(network, result["solution"])
 
     if occursin("INFEASIBLE", string(reconfigured_solution["termination_status"])) || occursin("ITERATION_LIMIT", string(reconfigured_solution["termination_status"]))
-        return NaN, output_configured_network
+        return result["objective"], network
     elseif occursin("ERROR", string(reconfigured_solution["termination_status"]))
-        return NaN, output_configured_network
+        return result["objective"], network
     else
         return reconfigured_solution["objective"], output_configured_network
     end
@@ -243,7 +246,7 @@ function create_new_branches(branch_list, old_id, new_id, n_branches)
 end
 
 
-function make_configuration_template(network, bus)
+function make_configuration_template(network, bus; connected=0)
 
     # Count number of loads, generators, branches.
     n_loads = length(get_adjacent_loads(network, bus))
@@ -251,7 +254,7 @@ function make_configuration_template(network, bus)
     n_branches = length(get_adjacent_branches(network, bus))
     
     # Initialize buses to not be connected.
-    buses_connected = 0
+    buses_connected = connected
 
     load_connections = zeros(n_loads, 1)
     gen_connections = zeros(n_gens, 1)

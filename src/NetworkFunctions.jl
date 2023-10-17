@@ -5,6 +5,7 @@ using Graphs
 using DataStructures
 using Plots
 using ExportAll
+using Revise
 
 
 function distance_dict(graph, vertex::Int64)

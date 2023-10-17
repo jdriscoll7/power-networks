@@ -7,8 +7,8 @@ using Plots
 using VegaLite
 using Revise
 
-includet("../src/NetworkFunctions.jl")
-includet("../src/Configurations.jl")
+include("../src/NetworkFunctions.jl")
+include("../src/Configurations.jl")
 using .NetworkFunctions
 using .Configurations
 

@@ -12,7 +12,7 @@ default(show = true)
 
 data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case118_ieee.m")
 
-EXPERIMENT_MODE = "single branch"
+EXPERIMENT_MODE = "bus"
 
 network_data_1 = PowerModels.parse_file(data_file)
 network_data_2 = PowerModels.parse_file(data_file)

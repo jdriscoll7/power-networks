@@ -63,11 +63,11 @@ function power_to_graph(power_network)
 end
 
 
-function generate_distance_change_plot(graph, change_graph, removed_buses)
+function generate_distance_change_plot(graph, change_graph, removed_buses; return_xy_data=false)
 
     simple_graph = power_to_graph(graph)
     distances = graph_distances(simple_graph, removed_buses)
-    println(distances)
+    # println(distances)
 
     distance_change_dict = Dict()
 
@@ -84,8 +84,16 @@ function generate_distance_change_plot(graph, change_graph, removed_buses)
         end
     end
 
+    # Early return condition, if user just wants x and y data, not plotting.
     x_data = vec([[d for x in x_list] for (d, x_list) in distance_change_dict])
     y_data = vec([x_list for (d, x_list) in distance_change_dict])
+    
+    max_x_data = vec([d for (d, x_list) in distance_change_dict])
+    max_y_data = vec([maximum(x_list) for (d, x_list) in distance_change_dict])
+
+    if return_xy_data
+        return max_x_data, max_y_data
+    end
 
     scatter1 = scatter(x_data, y_data, seriestype=:scatter, legend=false, mode="markers", 
                     color=RGB(0.121,0.467,0.706), markerstrokewidth = 0, markersize=6, grid=false,
@@ -94,27 +102,23 @@ function generate_distance_change_plot(graph, change_graph, removed_buses)
                     ylabel="Magnitude of Solution Change",
                     xguidefontsize=8,
                     yguidefontsize=8,
-                    title="Position Change in Graph vs. Distance",
+                    title="Solution Change in Graph vs. Distance",
                     titlefontsize=10)
     
     display(scatter1)
     savefig(scatter1, "output_figs/power_change_plot.png")
 
-    x_data = vec([d for (d, x_list) in distance_change_dict])
-    y_data = vec([maximum(x_list) for (d, x_list) in distance_change_dict])
-
-    scatter2 = scatter(x_data, y_data, seriestype=:scatter, legend=false, mode="markers", 
+    scatter2 = scatter(max_x_data, max_y_data, seriestype=:scatter, legend=false, mode="markers", 
                     color=RGB(0.121,0.467,0.706), markerstrokewidth = 0, markersize=6, grid=false,
                     xticks=[2, 4, 6, 8, 10, 12],
                     xlabel="Solution Distance in Graph",
                     ylabel="Magnitude of Solution Change",
                     xguidefontsize=8,
                     yguidefontsize=8,
-                    title="Largest Position Change in Graph vs. Distance",
+                    title="Largest Solution Change in Graph vs. Distance",
                     titlefontsize=10)
 
     display(scatter2)
-
     savefig(scatter2, "output_figs/power_change_plot_max.png")
 
     return Dict(distance_change_dict)

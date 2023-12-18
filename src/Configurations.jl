@@ -14,6 +14,20 @@ include("./NetworkFunctions.jl")
 using .NetworkFunctions
 
 
+function is_infeasible_result(result)
+
+    # print(string(result["termination_status"]))
+
+    if occursin("INFEASIBLE", string(result["termination_status"])) || occursin("ITERATION_LIMIT", string(result["termination_status"]))
+        return true
+    elseif occursin("ERROR", string(result["termination_status"]))
+        return true
+    else
+        return false
+    end
+
+end
+
 mutable struct Configuration
     bus_number::Int
     buses_connected::Int
@@ -131,7 +145,9 @@ function solve_configuration(configured_network)
 
     opt = JuMP.optimizer_with_attributes(Ipopt.Optimizer, "max_iter"=>150, "print_level"=>0)
 
-    return solve_opf(configured_network, ACPPowerModel, opt)
+    result = solve_opf(configured_network, ACPPowerModel, opt)
+
+    return result
 
 end
 
@@ -252,6 +268,47 @@ function make_configuration_template(network, bus; connected=0)
     n_loads = length(get_adjacent_loads(network, bus))
     n_gens = length(get_adjacent_generators(network, bus))
     n_branches = length(get_adjacent_branches(network, bus))
+    
+    # Initialize buses to not be connected.
+    buses_connected = connected
+
+    load_connections = zeros(n_loads, 1)
+    gen_connections = zeros(n_gens, 1)
+    line_to_bus_connections = zeros(n_branches, 1)
+
+    # Initialize all branches to be on.
+    line_connections = ones(n_branches, 1)
+
+    return Configuration(bus, buses_connected, load_connections, gen_connections, line_to_bus_connections, line_connections)
+end
+
+function make_configuration_template(network, bus; connected=0)
+
+    # Count number of loads, generators, branches.
+    n_loads = length(get_adjacent_loads(network, bus))
+    n_gens = length(get_adjacent_generators(network, bus))
+    n_branches = length(get_adjacent_branches(network, bus))
+    
+    # Initialize buses to not be connected.
+    buses_connected = connected
+
+    load_connections = zeros(n_loads, 1)
+    gen_connections = zeros(n_gens, 1)
+    line_to_bus_connections = zeros(n_branches, 1)
+
+    # Initialize all branches to be on.
+    line_connections = ones(n_branches, 1)
+
+    return Configuration(bus, buses_connected, load_connections, gen_connections, line_to_bus_connections, line_connections)
+end
+
+function make_configuration_template(network, bus, branch; connected=0)
+
+    # Count number of loads, generators, branches.
+    n_loads = length(get_adjacent_loads(network, bus))
+    n_gens = length(get_adjacent_generators(network, bus))
+    branches = get_adjacent_branches(network, bus)
+    n_branches = length(branches)
     
     # Initialize buses to not be connected.
     buses_connected = connected

@@ -100,6 +100,9 @@ end
 # Plot everything.
 for data_file in data_files
 
+    y_data[data_file] = y_data[data_file][1:6]
+    x_data[data_file] = x_data[data_file][1:6]
+
     network_data_1 = PowerModels.parse_file(data_file)
     n_buses = length(keys(network_data_1["bus"]))
     scatter_plot = nothing;
@@ -110,7 +113,9 @@ for data_file in data_files
 
         sorted_idx = sortperm(_x_data)
         sorted_x = _x_data[sorted_idx]
-        sorted_y = _y_data[sorted_idx]
+        sorted_y = log.(_y_data[sorted_idx] .+ 1e-3)
+
+        println(sorted_y)
 
         # scatter_plot =  scatter(_x_data, _y_data, seriestype=:scatter, legend=false, mode="markers", 
         #                         color=RGB(0.121,0.467,0.706), markerstrokewidth = 0, markersize=6, grid=false,

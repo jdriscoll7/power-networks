@@ -20,8 +20,9 @@ data_file = joinpath(@__DIR__, "..\\ieee_data\\WB5.m")
 network_data_1 = PowerModels.parse_file(data_file)
 network_data_2 = PowerModels.parse_file(data_file)
 power_to_graph(network_data_2)
-# delete!(network_data_2["branch"], "7")
-delete!(network_data_2["branch"], "148")
+# delete!(network_data_2["branch"], "6")
+delete!(network_data_2["branch"], "1")
+#delete!(network_data_2["branch"], "148")
 
 
 result_1 = solve_opf(network_data_1, ACPPowerModel, Ipopt.Optimizer)

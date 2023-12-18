@@ -21,7 +21,7 @@ network_data = PowerModels.parse_file(data_file)
 
 
 # BUS_NUMBERS = [15, 24, 9, 17]
-BUS_NUMBERS = [4]
+BUS_NUMBERS = [1, 2, 3, 4, 5]
 
 config_costs = Dict()
 configs = Dict()

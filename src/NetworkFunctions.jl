@@ -126,6 +126,32 @@ function generate_distance_change_plot(graph, change_graph, removed_buses; retur
 end
 
 
+function copy_bus_layout_positions!(from_network, to_network)
+    
+    # Copy over positions to changed data to keep bus positions constant.
+    for (bus_number, bus_data) in from_network["bus"]
+        if bus_number in keys(to_network["bus"])
+            to_network["bus"][bus_number]["xcoord_1"] = bus_data["xcoord_1"]
+            to_network["bus"][bus_number]["ycoord_1"] = bus_data["ycoord_1"]
+        end
+    end
+
+    for (load_number, load_data) in from_network["load"]
+        if load_number in keys(to_network["load"])
+            to_network["load"][load_number]["xcoord_1"] = load_data["xcoord_1"]
+            to_network["load"][load_number]["ycoord_1"] = load_data["ycoord_1"]
+        end
+    end
+
+    for (gen_number, gen_data) in from_network["gen"]
+        if gen_number in keys(to_network["gen"])
+            to_network["gen"][gen_number]["xcoord_1"] = gen_data["xcoord_1"]
+            to_network["gen"][gen_number]["ycoord_1"] = gen_data["ycoord_1"]           
+        end
+    end
+end
+
+
 function generate_change_data(data_1, data_2)
 
     # Collect bus, branch, load, and gen data.
@@ -253,6 +279,21 @@ function get_adjacent_branches(network, bus_number::Int)
     for (branch_id, branch_info) in network["branch"]
         if branch_info["f_bus"] == bus_number || branch_info["t_bus"] == bus_number
             output_branch_list[branch_id] = copy(branch_info)
+        end
+    end
+
+    return output_branch_list
+
+end
+
+
+function get_adjacent_branch_ids(network, bus_number::Int)
+
+    output_branch_list = []
+
+    for (branch_id, branch_info) in network["branch"]
+        if branch_info["f_bus"] == bus_number || branch_info["t_bus"] == bus_number
+            append!(output_branch_list, [branch_id])
         end
     end
 

@@ -10,7 +10,7 @@ using ..NetworkFunctions
 default(show = true)
 
 
-data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case118_ieee.m")
+data_file = joinpath(@__DIR__, "..\\ieee_data\\pglib_opf_case14_ieee.m")
 
 EXPERIMENT_MODE = "bus"
 
@@ -21,7 +21,7 @@ network_data_3 = PowerModels.parse_file(data_file)
 result_1 = solve_opf(network_data_1, ACPPowerModel, Ipopt.Optimizer)
 update_data!(network_data_1, result_1["solution"])
 network_data_1 = layout_network(network_data_1)
-
+return
 plot1 = powerplot(  network_data_1,
                         bus_data=:vm,
                         bus_data_type=:quantitative,
@@ -74,6 +74,8 @@ if EXPERIMENT_MODE == "bus"
     change_data_12 = NetworkFunctions.generate_change_data(network_data_1, network_data_2)
     change_data_13 = NetworkFunctions.generate_change_data(network_data_1, network_data_3)
     change_data_23 = NetworkFunctions.generate_change_data(network_data_2, network_data_3)
+
+    println(change_data_12)
 
     plot3 = powerplot(  change_data_12;
                         bus_data=:vm,

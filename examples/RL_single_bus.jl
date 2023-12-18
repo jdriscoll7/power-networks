@@ -155,7 +155,7 @@ agent = Agent(
 
 
 # stop_condition = StopAfterStep(100, is_show_progress=true)
-stop_condition = StopAfterEpisode(1000)
+stop_condition = StopAfterEpisode(2000)
 hook = RewardsPerEpisode()
 ex = Experiment(agent, env, stop_condition, hook, "# BasicDQN <-> PowerEnv")
 run(ex)
